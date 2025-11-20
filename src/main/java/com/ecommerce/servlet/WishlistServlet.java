@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import com.ecommerce.dao.ProductDAO;
 import com.ecommerce.dao.WishlistDAO;
+import com.ecommerce.model.User;
 import com.ecommerce.model.Product;
 import com.ecommerce.model.WishlistItem;
 
@@ -19,7 +20,13 @@ public class WishlistServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        int wishlistId = ensureWishlist(req.getSession());
+        HttpSession session = req.getSession(false);
+        User user = session != null ? (User) session.getAttribute("currentUser") : null;
+        if (user == null) {
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
+        int wishlistId = wishlistDAO.ensureDefaultForUser(user.getId());
         List<WishlistItem> items = wishlistDAO.listItems(wishlistId);
         List<Product> products = items.stream().map(i -> productDAO.findById(i.getProductId())).collect(Collectors.toList());
         req.setAttribute("wishlistItems", items);
@@ -29,7 +36,13 @@ public class WishlistServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        int wishlistId = ensureWishlist(req.getSession());
+        HttpSession session = req.getSession(false);
+        User user = session != null ? (User) session.getAttribute("currentUser") : null;
+        if (user == null) {
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
+        int wishlistId = wishlistDAO.ensureDefaultForUser(user.getId());
         String action = req.getParameter("action");
         if ("add".equals(action)) {
             int productId = Integer.parseInt(req.getParameter("productId"));
@@ -41,12 +54,5 @@ public class WishlistServlet extends HttpServlet {
         resp.sendRedirect(req.getContextPath() + "/wishlist");
     }
 
-    private int ensureWishlist(HttpSession session) {
-        Integer wishlistId = (Integer) session.getAttribute("wishlistId");
-        if (wishlistId == null) {
-            wishlistId = 1;
-            session.setAttribute("wishlistId", wishlistId);
-        }
-        return wishlistId;
-    }
+    // per-user wishlist now ensured in DAO
 }

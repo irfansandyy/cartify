@@ -6,7 +6,6 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 
 import com.ecommerce.dao.ReviewDAO;
-import com.ecommerce.model.Review;
 import com.ecommerce.model.User;
 
 @WebServlet("/review")
@@ -17,17 +16,15 @@ public class ReviewServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String userId = resolveUserId(req.getSession());
         int productId = Integer.parseInt(req.getParameter("productId"));
-        int rating = Integer.parseInt(req.getParameter("rating"));
-        String title = req.getParameter("title");
-        String body = req.getParameter("body");
-        Review r = new Review();
-        r.setProductId(productId);
-        r.setUserId(userId);
-        r.setRating(rating);
-        r.setTitle(title);
-        r.setBody(body);
-        r.setVerifiedPurchase(false);
-        reviewDAO.add(r);
+        String action = req.getParameter("action");
+        if ("delete".equals(action)) {
+            reviewDAO.delete(productId, userId);
+        } else {
+            int rating = Integer.parseInt(req.getParameter("rating"));
+            String title = req.getParameter("title");
+            String body = req.getParameter("body");
+            reviewDAO.addReview(productId, userId, rating, title, body, "approved", true);
+        }
         resp.sendRedirect(req.getContextPath() + "/product?id=" + productId);
     }
 

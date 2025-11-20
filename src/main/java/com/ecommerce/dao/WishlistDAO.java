@@ -32,6 +32,28 @@ public class WishlistDAO {
         }
     }
 
+    public int ensureDefaultForUser(String userId) {
+        String find = "SELECT id FROM wishlists WHERE user_id=? ORDER BY id ASC LIMIT 1";
+        String insert = "INSERT INTO wishlists(user_id,name) VALUES(?,?)";
+        try (Connection conn = DB.getConnection(); PreparedStatement ps = conn.prepareStatement(find)) {
+            ps.setString(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt("id");
+            }
+            try (PreparedStatement create = conn.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)) {
+                create.setString(1, userId);
+                create.setString(2, "Default");
+                create.executeUpdate();
+                try (ResultSet keys = create.getGeneratedKeys()) {
+                    if (keys.next()) return keys.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to ensure default wishlist", e);
+        }
+        return 0;
+    }
+
     public void remove(int id) {
         try (Connection conn = DB.getConnection(); PreparedStatement ps = conn.prepareStatement("DELETE FROM wishlist_items WHERE id=?")) {
             ps.setInt(1, id);

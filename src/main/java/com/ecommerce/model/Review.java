@@ -13,6 +13,7 @@ public class Review {
     private boolean verifiedPurchase;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String userEmail;
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -34,4 +35,6 @@ public class Review {
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public String getUserEmail() { return userEmail; }
+    public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
 }

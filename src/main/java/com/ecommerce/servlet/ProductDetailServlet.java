@@ -9,7 +9,6 @@ import java.util.List;
 import com.ecommerce.dao.ProductDAO;
 import com.ecommerce.dao.ReviewDAO;
 import com.ecommerce.model.Product;
-import com.ecommerce.model.Review;
 
 @WebServlet("/product")
 public class ProductDetailServlet extends HttpServlet {
@@ -29,7 +28,7 @@ public class ProductDetailServlet extends HttpServlet {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        List<Review> reviews = reviewDAO.listForProduct(id);
+        List<ReviewDAO.Row> reviews = reviewDAO.listRowsForProduct(id);
             req.setAttribute("product", product);
             req.setAttribute("reviews", reviews);
             req.getRequestDispatcher("/product.jsp").forward(req, resp);

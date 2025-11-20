@@ -11,8 +11,18 @@ import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 import com.ecommerce.dao.UserDAO;
+import com.ecommerce.dao.CartDAO;
+import com.ecommerce.dao.ProductDAO;
+import com.ecommerce.dao.WishlistDAO;
 import com.ecommerce.model.User;
+import com.ecommerce.model.CartItem;
+import com.ecommerce.model.Product;
 import com.ecommerce.util.DB;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @WebFilter("/*")
 public class AuthFilter implements Filter {
@@ -37,11 +47,43 @@ public class AuthFilter implements Filter {
         }
 
         String path = req.getRequestURI().substring(req.getContextPath().length());
-        boolean requiresAuth = path.startsWith("/cart") || path.startsWith("/wishlist") || path.startsWith("/orders") || path.startsWith("/account");
+        boolean requiresAuth = path.startsWith("/cart") || path.startsWith("/wishlist") || path.startsWith("/orders") || path.startsWith("/account") || path.startsWith("/checkout");
 
         if (requiresAuth && currentUser == null) {
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
+        }
+
+        // Inject cart preview data for header if user logged in
+        if (currentUser != null) {
+            try {
+                CartDAO cartDAO = new CartDAO();
+                ProductDAO productDAO = new ProductDAO();
+                WishlistDAO wishlistDAO = new WishlistDAO();
+                List<CartItem> miniCartItems = cartDAO.listByUser(currentUser.getId());
+                List<Product> cartProductsMini = new ArrayList<>();
+                BigDecimal total = BigDecimal.ZERO;
+                for (CartItem ci : miniCartItems) {
+                    Product p = productDAO.findById(ci.getProductId());
+                    if (p != null) {
+                        cartProductsMini.add(p);
+                        if (p.getPrice() != null) {
+                            total = total.add(p.getPrice().multiply(BigDecimal.valueOf(ci.getQuantity())));
+                        }
+                    }
+                }
+                request.setAttribute("miniCartItems", miniCartItems);
+                request.setAttribute("cartProductsMini", cartProductsMini);
+                request.setAttribute("miniCartTotal", total);
+                request.setAttribute("cartCount", miniCartItems.size());
+
+                // Inject wishlist presence map keyed by productId
+                int wishlistId = wishlistDAO.ensureDefaultForUser(currentUser.getId());
+                var wishItems = wishlistDAO.listItems(wishlistId);
+                Map<Integer, Boolean> wishlistMap = new HashMap<>();
+                for (var wi : wishItems) wishlistMap.put(wi.getProductId(), Boolean.TRUE);
+                request.setAttribute("wishlistMap", wishlistMap);
+            } catch (Exception ignored) { /* fail silently so page still renders */ }
         }
 
         chain.doFilter(request, response);

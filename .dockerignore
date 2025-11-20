@@ -1,0 +1,24 @@
+# Build artifacts
+/target
+/src/main/webapp/WEB-INF/classes
+/src/main/webapp/WEB-INF/lib
+
+# Node/Tailwind cache if present
+/node_modules
+
+# VCS
+.git
+.gitignore
+
+# Env files (provide explicitly when deploying)
+.env
+*.env
+
+# IDE/editor metadata
+*.iml
+.idea/
+.vscode/
+
+# Logs
+*.log
+/logs/

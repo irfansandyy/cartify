@@ -6,8 +6,8 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css" />
 </head>
 <body class="font-body bg-surface">
-<main class="container mx-auto px-6 py-10 mt-32 flex justify-center">
-    <section class="card rounded-xl w-full max-w-md space-y-6">
+<main class="container mx-auto px-6 py-10 flex justify-center items-center" style="flex:1;min-height:90%;">
+    <section class="card rounded-xl w-full max-w-md space-y-6" style="width:100%;">
         <div>
             <h1 class="font-header text-primary text-xl mb-1">Create your account</h1>
             <p class="text-muted text-sm">Sign up to start adding items to your cart and wishlist.</p>

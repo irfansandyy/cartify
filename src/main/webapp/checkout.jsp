@@ -12,33 +12,55 @@
     <section class="max-w-5xl mx-auto grid gap-6 md:grid-cols-[2fr,1.5fr]">
         <div class="card rounded-xl space-y-4">
             <h1 class="font-header text-primary text-xl">Shipping & payment</h1>
-            <form method="post" action="${pageContext.request.contextPath}/checkout" class="space-y-4 text-sm">
+            <c:if test="${not empty addresses}">
+                <div class="space-y-2">
+                    <label class="text-muted block">Saved addresses</label>
+                    <div class="flex items-center gap-2">
+                        <select id="saved-address" class="w-full border border-(--color-border) rounded-md px-3 py-2 text-sm">
+                            <option value="__new__">(+ ) Create new address…</option>
+                            <c:forEach items="${addresses}" var="a">
+                                <option value="${a.id}"
+                                        data-name="${fn:escapeXml(a.name)}"
+                                        data-address1="${fn:escapeXml(a.address1)}"
+                                        data-city="${fn:escapeXml(a.city)}"
+                                        data-postal="${fn:escapeXml(a.postalCode)}"
+                                        data-country="${fn:escapeXml(a.countryCode)}"
+                                        ${a.defaultShipping ? 'selected' : ''}>
+                                    ${a.name} — ${a.address1}, ${a.city} ${a.postalCode}, ${a.countryCode}
+                                </option>
+                            </c:forEach>
+                        </select>
+                        <button type="button" id="use-address" class="btn btn-secondary rounded-md px-3 py-2 text-xs" style="color:#000;">Use</button>
+                    </div>
+                </div>
+            </c:if>
+            <form method="post" action="${pageContext.request.contextPath}/checkout" class="space-y-4 text-sm" id="checkout-form">
                 <div class="space-y-1">
                     <label class="text-muted block">Full name</label>
-                    <input type="text" name="name" required class="w-full border border-(--color-border) rounded-md px-3 py-2" />
+                    <input type="text" name="name" value="${fn:escapeXml(shipName)}" required class="w-full border border-(--color-border) rounded-md px-3 py-2" />
                 </div>
                 <div class="space-y-1">
                     <label class="text-muted block">Address</label>
-                    <input type="text" name="address1" required class="w-full border border-(--color-border) rounded-md px-3 py-2" />
+                    <input type="text" name="address1" value="${fn:escapeXml(shipAddress1)}" required class="w-full border border-(--color-border) rounded-md px-3 py-2" />
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1">
                         <label class="text-muted block">City</label>
-                        <input type="text" name="city" required class="w-full border border-(--color-border) rounded-md px-3 py-2" />
+                        <input type="text" name="city" value="${fn:escapeXml(shipCity)}" required class="w-full border border-(--color-border) rounded-md px-3 py-2" />
                     </div>
                     <div class="space-y-1">
                         <label class="text-muted block">Postal code</label>
-                        <input type="text" name="postal_code" required class="w-full border border-(--color-border) rounded-md px-3 py-2" />
+                        <input type="text" name="postal_code" value="${fn:escapeXml(shipPostal)}" required class="w-full border border-(--color-border) rounded-md px-3 py-2" />
                     </div>
                 </div>
                 <div class="space-y-1">
                     <label class="text-muted block">Country</label>
-                    <input type="text" name="country_code" required class="w-full border border-(--color-border) rounded-md px-3 py-2" />
+                    <input type="text" name="country_code" value="${fn:escapeXml(shipCountry)}" required class="w-full border border-(--color-border) rounded-md px-3 py-2" />
                 </div>
                 <div class="space-y-2">
                     <span class="text-muted block">Payment method</span>
                     <label class="flex items-center gap-2 text-sm">
-                        <input type="radio" name="payment_method" value="card" checked />
+                        <input type="radio" name="payment_method" value="credit_card" checked />
                         <span>Credit / debit card (test)</span>
                     </label>
                     <label class="flex items-center gap-2 text-sm">
@@ -88,8 +110,47 @@
                 </div>
             </c:if>
         </aside>
-    </section>
 </main>
 <jsp:include page="partials/footer.jsp" />
+<script>
+    (function(){
+        const form = document.getElementById('checkout-form');
+        if (!form) return;
+        const sel = document.getElementById('saved-address');
+        const useBtn = document.getElementById('use-address');
+
+        function qs(name){ return form.querySelector('input[name="' + name + '"]'); }
+
+        function applyFromOption(opt){
+            if (!opt) return;
+            if (opt.value === '__new__') {
+                qs('name').value = '';
+                qs('address1').value = '';
+                qs('city').value = '';
+                qs('postal_code').value = '';
+                qs('country_code').value = '';
+            } else {
+                qs('name').value = opt.dataset.name || '';
+                qs('address1').value = opt.dataset.address1 || '';
+                qs('city').value = opt.dataset.city || '';
+                qs('postal_code').value = opt.dataset.postal || '';
+                qs('country_code').value = opt.dataset.country || '';
+            }
+        }
+
+        if (sel) {
+            sel.addEventListener('change', function(){
+                applyFromOption(sel.options[sel.selectedIndex]);
+            });
+            applyFromOption(sel.options[sel.selectedIndex]);
+        }
+
+        if (useBtn) {
+            useBtn.addEventListener('click', function(){
+                if (sel) applyFromOption(sel.options[sel.selectedIndex]);
+            });
+        }
+    })();
+</script>
 </body>
 </html>

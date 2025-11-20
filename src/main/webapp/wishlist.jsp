@@ -22,9 +22,9 @@
                         <form method="post" action="${pageContext.request.contextPath}/wishlist" class="inline">
                             <input type="hidden" name="action" value="remove" />
                             <input type="hidden" name="id" value="${wishlistItems[loop.index].id}" />
-                            <button class="btn btn-accent rounded-lg px-3 py-1.5 text-xs transition-transform hover:-translate-y-0.5" type="submit">Remove</button>
+                            <button class="btn btn-secondary rounded-lg px-3 py-1.5 text-xs transition-transform hover:-translate-y-0.5" type="submit" style="color: #000;">Remove</button>
                         </form>
-                        <a class="btn btn-secondary rounded-lg px-3 py-1.5 text-xs transition-transform hover:-translate-y-0.5" href="${pageContext.request.contextPath}/product?id=${p.id}">View</a>
+                        <a class="btn btn-primary bg-white rounded-lg px-3 py-1.5 text-xs transition-transform hover:-translate-y-0.5" href="${pageContext.request.contextPath}/product?id=${p.id}">View</a>
                     </div>
                 </article>
             </c:forEach>

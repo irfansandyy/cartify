@@ -50,7 +50,7 @@
                                 <form method="post" action="${pageContext.request.contextPath}/cart">
                                     <input type="hidden" name="action" value="remove" />
                                     <input type="hidden" name="id" value="${item.id}" />
-                                    <button class="btn btn-primary rounded-lg px-3 py-1 text-xs transition-transform hover:-translate-y-0.5" type="submit">Remove</button>
+                                    <button class="btn btn-secondary rounded-lg px-3 py-1 text-xs transition-transform hover:-translate-y-0.5" type="submit" style="color: #000;">Remove</button>
                                 </form>
                             </td>
                         </tr>
@@ -60,6 +60,11 @@
             </div>
             <div class="mt-4 flex justify-end">
                 <strong class="text-primary text-base">Total: $${grand}</strong>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <a href="${pageContext.request.contextPath}/checkout" class="btn btn-primary rounded-lg px-5 py-2 text-sm inline-flex items-center gap-2 hover:-translate-y-0.5 transition-transform">
+                    <span>Proceed to checkout</span>
+                </a>
             </div>
         </c:if>
     </section>

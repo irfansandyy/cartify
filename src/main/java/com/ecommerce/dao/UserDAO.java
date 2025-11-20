@@ -92,5 +92,17 @@ public class UserDAO {
             throw new RuntimeException("Failed to find user by id", e);
         }
     }
+
+    public void updateProfile(String id, String name, String phone) {
+        String sql = "UPDATE users SET name=?, phone=? WHERE id=?";
+        try (Connection conn = DB.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, name);
+            ps.setString(2, phone);
+            ps.setString(3, id);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to update profile", e);
+        }
+    }
 }
 

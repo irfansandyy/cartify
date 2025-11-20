@@ -19,6 +19,7 @@ public class Product {
 
     private Integer reviewCount;
     private Double averageRating;
+    private String categoryName;
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -49,4 +50,6 @@ public class Product {
     public void setReviewCount(Integer reviewCount) { this.reviewCount = reviewCount; }
     public Double getAverageRating() { return averageRating; }
     public void setAverageRating(Double averageRating) { this.averageRating = averageRating; }
+    public String getCategoryName() { return categoryName; }
+    public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
 }

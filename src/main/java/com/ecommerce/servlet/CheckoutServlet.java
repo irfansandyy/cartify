@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.ecommerce.dao.CartDAO;
+import com.ecommerce.dao.AddressDAO;
 import com.ecommerce.dao.OrderDAO;
 import com.ecommerce.dao.ProductDAO;
 import com.ecommerce.model.CartItem;
@@ -20,6 +21,7 @@ public class CheckoutServlet extends HttpServlet {
     private final CartDAO cartDAO = new CartDAO();
     private final ProductDAO productDAO = new ProductDAO();
     private final OrderDAO orderDAO = new OrderDAO();
+    private final AddressDAO addressDAO = new AddressDAO();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -48,6 +50,24 @@ public class CheckoutServlet extends HttpServlet {
         req.setAttribute("subtotal", subtotal);
         req.setAttribute("shipping", new BigDecimal("0.00"));
         req.setAttribute("tax", new BigDecimal("0.00"));
+
+        // Load saved addresses and prefill with default shipping if available
+        var addresses = addressDAO.listByUser(userId);
+        req.setAttribute("addresses", addresses);
+        AddressDAO.Address prefill = null;
+        for (var a : addresses) {
+            if (a.isDefaultShipping()) { prefill = a; break; }
+        }
+        if (prefill == null && !addresses.isEmpty()) {
+            prefill = addresses.get(0);
+        }
+        if (prefill != null) {
+            req.setAttribute("shipName", prefill.getName());
+            req.setAttribute("shipAddress1", prefill.getAddress1());
+            req.setAttribute("shipCity", prefill.getCity());
+            req.setAttribute("shipPostal", prefill.getPostalCode());
+            req.setAttribute("shipCountry", prefill.getCountryCode());
+        }
         req.getRequestDispatcher("/checkout.jsp").forward(req, resp);
     }
 
@@ -74,6 +94,19 @@ public class CheckoutServlet extends HttpServlet {
     req.getParameter("country_code");
         String paymentMethod = req.getParameter("payment_method");
         if (paymentMethod == null || paymentMethod.isBlank()) {
+            paymentMethod = "cod";
+        }
+        // Normalize to DB enum values
+        String pm = paymentMethod.toLowerCase();
+        if (pm.equals("card") || pm.equals("credit") || pm.equals("credit-card") || pm.equals("credit_card")) {
+            paymentMethod = "credit_card";
+        } else if (pm.equals("bank") || pm.equals("transfer") || pm.equals("bank-transfer") || pm.equals("bank_transfer")) {
+            paymentMethod = "bank_transfer";
+        } else if (pm.equals("wallet")) {
+            paymentMethod = "wallet";
+        } else if (pm.equals("cod") || pm.equals("cash") || pm.equals("cash_on_delivery") || pm.equals("cash-on-delivery")) {
+            paymentMethod = "cod";
+        } else {
             paymentMethod = "cod";
         }
 
