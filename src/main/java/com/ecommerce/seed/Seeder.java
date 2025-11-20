@@ -41,7 +41,7 @@ public class Seeder {
                 return r;
             }
 
-            List<ProductSeed> seeds = generateWithGemini(5);
+            List<ProductSeed> seeds = generateWithGemini(100);
 
             conn.setAutoCommit(false);
             try {

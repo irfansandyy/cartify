@@ -40,6 +40,7 @@ services:
       DB_USER: ${MYSQL_USER:-cartify}
       DB_PASS: ${MYSQL_PASSWORD}
       JAVA_OPTS: -Xms256m -Xmx512m
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
     ports:
       - "8080:8080"
     restart: unless-stopped
